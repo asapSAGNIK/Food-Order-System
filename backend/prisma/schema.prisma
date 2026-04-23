@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum Country {
+  INDIA
+  AMERICA
+  GLOBAL
+}
+
+enum OrderStatus {
+  DRAFT
+  PLACED
+  CANCELLED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(MEMBER)
+  country   Country  @default(INDIA)
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Restaurant {
+  id        Int        @id @default(autoincrement())
+  name      String
+  cuisine   String
+  country   Country
+  imageUrl  String?
+  createdAt DateTime   @default(now())
+  menuItems MenuItem[]
+  orders    Order[]
+}
+
+model MenuItem {
+  id           Int         @id @default(autoincrement())
+  restaurantId Int
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  name         String
+  description  String?
+  price        Decimal     @db.Decimal(10, 2)
+  category     String?
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  userId       Int
+  user         User        @relation(fields: [userId], references: [id])
+  restaurantId Int
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  status       OrderStatus @default(DRAFT)
+  totalAmount  Decimal     @default(0) @db.Decimal(10, 2)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(10, 2)
+}
+
+model PaymentMethod {
+  id             Int      @id @default(autoincrement())
+  country        Country
+  cardholderName String
+  lastFourDigits String
+  expiryMonth    Int
+  expiryYear     Int
+  cardType       String
+  updatedAt      DateTime @updatedAt
+  updatedBy      Int?     // User ID of the admin who updated it
+}
