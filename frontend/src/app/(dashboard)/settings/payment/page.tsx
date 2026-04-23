@@ -78,8 +78,8 @@ export default function SettingsPaymentPage() {
       <div className="space-y-8">
         {methods.map((method) => (
           <div key={method.id} className="bg-card shadow-md overflow-hidden sm:rounded-xl border-0">
-            <div className="px-6 py-6 sm:px-6 bg-accent-light bg-opacity-20">
-              <h3 className="text-xl leading-6 font-bold text-primary">
+            <div className="px-6 py-6 sm:px-6 bg-primary">
+              <h3 className="text-xl leading-6 font-bold text-[#FFF8DE]">
                 {method.country} Organization Card
               </h3>
             </div>
